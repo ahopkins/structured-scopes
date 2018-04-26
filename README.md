@@ -24,14 +24,27 @@ Valid characters: any UTF-8 except `:`
 
 ### Actions
 
+May have either **zero** or **many**.
+
 Valid characters: any UTF-8 except `:`
 
 ## Accepting a scope
 
-### Geneal
+### General
 
 Required scope v. Requested scope
 
 ### Required scope
 
 ### Requested scope
+
+## Examples of scopes
+
+`admin`
+`user:read`
+`user:read:write`
+`:read`
+`:read:write`
+``
+`:`
+`::`
