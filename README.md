@@ -40,11 +40,11 @@ Required scope v. Requested scope
 
 ## Examples of scopes
 
-`admin`
-`user:read`
-`user:read:write`
-`:read`
-`:read:write`
-` `
-`:`
-`::`
+- `admin`
+- `user:read`
+- `user:read:write`
+- `:read`
+- `:read:write`
+- ` `
+- `:`
+- `::`
