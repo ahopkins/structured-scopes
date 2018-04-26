@@ -45,6 +45,6 @@ Required scope v. Requested scope
 `user:read:write`
 `:read`
 `:read:write`
-``
+` `
 `:`
 `::`
