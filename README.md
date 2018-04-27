@@ -69,13 +69,17 @@ Required scope v. Requested scope
     - be a top level scope with no defined actions, or
     - contain all of the same actions *
     
-*Note *: An implementation of this specification may offer a validation mechanism that only requires **one** scope*
+*Note: *An implementation of this specification may offer a validation mechanism that only requires **one** action to match*
 
 ### Multiple scopes
 
 Scopes can be chained together as a single string separated by a space:
 
     admin user:read ::delete
+
+A validation of multiple scopes is valid if the `requested_scope` matches **all** of the `required_scopes`. *
+
+*Note: *An implementation of this specification may offer a validation mechanism that only requires **one** `required_scope` to match the `requested_scope`*
 
 ## Examples of scopes
 
