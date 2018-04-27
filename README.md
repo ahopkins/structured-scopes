@@ -43,7 +43,7 @@ Valid characters: any UTF-8 accepted by RFC 6749 except `:`
 
 Actions are anything that follows the first delimited part of the scope (the namespace) and are separated by `:`
 
-Anything that follows any empty action is a negatve `::exclusion`
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`
 
 Possible actions:
 
