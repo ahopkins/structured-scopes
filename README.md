@@ -1,5 +1,4 @@
-# Structured Scope
-Working document for defining a scope specification
+# Structured Scope  (WIP)
 
 ## Abstract
 
