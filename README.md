@@ -7,50 +7,50 @@ This repository is meant to serve as a working outline of the generation of an a
 
 ## Introduction
 
-The goal of this endeavor is to standardize and define the meaning of scopes. It is a work in progress and **does not currently have any license**, and may be subject to change at any time. All copyright and other rights are hereby reserved.
+The goal of this endeavor is to standardize and define the meaning, and usage of "scopes" for implementation in an authorization utility. It is a work in progress and **does not currently have any license**, and may be subject to change at any time. All copyright and other rights are hereby reserved.
 
 ## Makeup of a scope
 
-A scope is a `string` of characters encoded with `UTF-8`. It has two parts:
+A scope is a `string` of characters encoded with `UTF-8` consisting of characters acceptable by [RFC 6749, Section 3.3](https://tools.ietf.org/html/rfc6749#section-3.3).
 
-1. namespace
-2. actions
+A scope has two components: (1) a namespace, and (2) actions. A scope's components (including multiple actions) are delimited by a colon:`:`.
 
-Delimited by `:`
+A scope cannot be a `null` value, but should produces an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1)
 
-`null` produces exception
+> The requested scope is invalid, unknown, or malformed.
 
 ### Namespace
 
-Must have either **one** or **none**.
+Every scope must have a **zero** or **one** namespace. A namespace can either be **specific** or **global**. If a namespace is **global**, then it will be matched by all requests.
 
-Valid characters: any UTF-8 accepted by RFC 6749 except `:`
+The absense of a namespace (as discussed below) will indicate that no matching can be achieved on the namespace. This is not to be confused with a blank namespace, that will be inferred as being a **global namespace** (see below).
+
+Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
 
 The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction`)
 
 Possible namespaces:
 
-- `foo` = `foo`
-- `:read` = Global namespace
-- `:` = Global namespace
-- ` ` = Empty namespace (ie, nothing can match)
+- `foo` = `foo` as a Specific namespace
+- `global` = Global namespace
+- `:read` = Global namespace (inferred)
+- `:` = Global namespace (inferred)
+- ` ` = Empty string (ie, nothing can match)
 
 ### Actions
 
-May have either **zero** or **many**.
+A scope may have either **zero** or **many** actions. The actions are a narrowing focus of the namespace. A scope without any actions is said to be at the **top level**. Actions are anything that follows the first delimited part of the scope (the namespace) and are separated by `:`.
 
-Valid characters: any UTF-8 accepted by RFC 6749 except `:`
+Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
 
-Actions are anything that follows the first delimited part of the scope (the namespace) and are separated by `:`
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching.
 
-Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`
+Possible actions on a scope:
 
-Possible actions:
-
-- `foo` = Top level required
-- `:read:write` = Read/write actions
-- `:` = Any action will work
-- `foo:` = Any action will work
+- `foo` = Top level
+- `:read:write` = Multiple  actions, namely `read` and `write`
+- `:` = Any action, wildcard
+- `foo:` = Any action, wildcard
 - `::read:write` = Any action except read and write
 
 ## Accepting a scope
@@ -62,6 +62,21 @@ Required scope v. Requested scope
 ### Required scope
 
 ### Requested scope
+
+### How scopes are matched
+
+1. The namespaces must be equal, except a **global** namespace matches every other namespace, and an empty namespace is **unmatchable**
+2. If the `required_scope` has a defined action, or actions, then the `requested_scope` must:
+    - be a top level scope with no defined actions, or
+    - contain all of the same actions *
+    
+*Note *: An implementation of this specification may offer a validation mechanism that only requires **one** scope*
+
+### Multiple scopes
+
+Scopes can be chained together as a single string separated by a space:
+
+    admin user:read ::delete
 
 ## Examples of scopes
 
