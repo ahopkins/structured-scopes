@@ -8,6 +8,10 @@ This repository is meant to serve as a working outline of the generation of an a
 
 The goal of this endeavor is to standardize and define the meaning, and usage of "scopes" for implementation in an authorization utility. It is a work in progress and **does not currently have any license**, and may be subject to change at any time. All copyright and other rights are hereby reserved.
 
+## Purpose
+
+The purpose of "scoping" is to provide a pass/fail response to a request for permission on a given, defined resource to authorized clients having the requisite permission level. A common application would be for permissioning on protected resources.
+
 ## Makeup of a scope
 
 A scope is a `string` of characters encoded with `UTF-8` consisting of characters acceptable by [RFC 6749, Section 3.3](https://tools.ietf.org/html/rfc6749#section-3.3).
@@ -42,7 +46,7 @@ A scope may have either **zero** or **many** actions. The actions are a narrowin
 
 Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
 
-Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching.
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching. Negative actions are only permissible in required scopes, and not in requested scopes.
 
 Possible actions on a scope:
 
@@ -83,6 +87,8 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 
 ## Examples of scopes
 
+### Valid Scopes
+
 - `admin`
 - `user:read`
 - `user:read:write`
@@ -92,3 +98,46 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 - `:`
 - `::`
 - `user:write:delete::read`
+
+### Structured Scopes test cases
+
+#### Simple single scopes - specific namespace
+
+| Required scope | Requested Scope | Intended Outcome |
+|---|---|---
+|user|something|fail|
+|user|user|pass|
+|user|user:read|fail|
+|user:read|user|pass|
+|user:read|user:read|pass|
+|user:read|user:write|fail|
+|user:read|user:read:write|pass|
+|user:read:write|user:read|fail*|
+|user:read:write|user:read:write|pass|
+|user:read:write|user:write:read|pass|
+
+### Simple single scopes - global namespace
+| Required scope | Requested Scope | Intended Outcome |
+|---|---|---|
+|:|:read|pass|
+|:|admin|pass|
+|:read|admin|pass|
+|:read|:read|pass|
+|:read|:write|fail|
+
+#### Simple multiple scopes
+
+| Required scope | Requested Scope | Intended Outcome |
+|---|---|---
+|user|something else|fail|
+|user|something else user|pass|
+
+
+|user:read|something:else user:read|pass|
+|user:read|user:read something:else|pass|
+
+
+```
+Legend
+* This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL actions being required, only one must match.
+** This is the default outcome. However, the validator should be capable of receiving an instruction that instead of only ONE scope being required for a match and a passing outcome, that ALL required scopes must be met by the 
