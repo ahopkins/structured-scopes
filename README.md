@@ -155,8 +155,8 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 |user:read::delete|user:read:delete|fail*|
 |user:read user::delete|user:read:delete|fail**|
 |user:read user::delete|user:read user:delete|fail**|
-| |*<anything here>*|fail|
-|::|*<anything here>*|fail|
+| |*anything here*|fail|
+|::|*anything here*|fail|
     
 Note: *The preferred method of failing any scope should be `::` and not ` ` for its explicit nature.
 
