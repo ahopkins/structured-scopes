@@ -46,7 +46,7 @@ A scope may have either **zero** or **many** actions. The actions are a narrowin
 
 Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
 
-Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching. Negative actions are only permissible in required scopes, and not in requested scopes.
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching. Negative actions are only permissible in required scopes, and not in requested scopes. If a requested scope contains a negation (`::`), then it should raise an error.
 
 Possible actions on a scope:
 
@@ -129,16 +129,40 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 #### Simple multiple scopes
 
 | Required scope | Requested Scope | Intended Outcome |
-|---|---|---
+|---|---|---|
 |user|something else|fail|
 |user|something else user|pass|
-
-
 |user:read|something:else user:read|pass|
 |user:read|user:read something:else|pass|
+|user foo|user|fail**|
+|user foo|user foo|pass|
+|user foo|foo user|pass|
+|user:read foo|user foo|pass|
+|user:read foo|user foo:read|fail|
+|user:read foo|user:read foo|pass|
+|user:read foo:bar|:read:bar|pass|
+
+#### Complex scopes
+
+| Required scope | Requested Scope | Intended Outcome |
+|---|---|---|
+|user::delete|user|pass|
+|user::delete|user:read|pass|
+|user::delete|user:delete|fail|
+|user:read::delete|user|pass|
+|user:read::delete|user:read|pass|
+|user:read::delete|user:delete|fail|
+|user:read::delete|user:read:delete|fail*|
+|user:read user::delete|user:read:delete|fail**|
+|user:read user::delete|user:read user:delete|fail**|
+| |*<anything here>*|fail|
+|::|*<anything here>*|fail|
+    
+Note: *The preferred method of failing any scope should be `::` and not ` ` for its explicit nature.
+
 
 
 ```
 Legend
 * This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL actions being required, only one must match.
-** This is the default outcome. However, the validator should be capable of receiving an instruction that instead of only ONE scope being required for a match and a passing outcome, that ALL required scopes must be met by the 
+** This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL required scopes being met, only ONE required scope is fulfilled.
