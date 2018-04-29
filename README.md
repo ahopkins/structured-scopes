@@ -104,7 +104,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 #### Simple single scopes - specific namespace
 
 | Required scope | Requested Scope | Intended Outcome |
-|---|---|---
+|---|---|---|
 |user|something|fail|
 |user|user|pass|
 |user|user:read|fail|
@@ -122,6 +122,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 |---|---|---|
 |:|:read|pass|
 |:|admin|pass|
+|:|*anything here*|pass|
 |:read|admin|pass|
 |:read|:read|pass|
 |:read|:write|fail|
