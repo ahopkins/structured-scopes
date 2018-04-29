@@ -60,11 +60,15 @@ Possible actions on a scope:
 
 ### General
 
-Required scope v. Requested scope
+The pattern for acceptance is that a client offers a requested scope to an authorizing agent. That authorizing agent has a predefined required scope. The role of the authorizing agent is to match the requested scope against the required scope and produce a `pass`/`fail` result.
 
 ### Required scope
 
+The required scope can be any valid scope, including negations.
+
 ### Requested scope
+
+Requested scopes **may not** contain negations (`::`). And, if they do, the authorizing agent should produce and error without providing a `pass`/`fail` result.
 
 ### How scopes are matched
 
