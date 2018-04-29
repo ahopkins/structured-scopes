@@ -116,7 +116,8 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 |user:read:write|user:read:write|pass|
 |user:read:write|user:write:read|pass|
 
-### Simple single scopes - global namespace
+#### Simple single scopes - global namespace
+
 | Required scope | Requested Scope | Intended Outcome |
 |---|---|---|
 |:|:read|pass|
