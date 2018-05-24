@@ -18,19 +18,19 @@ A scope is a `string` of characters encoded with `UTF-8` consisting of character
 
 A scope has two components: (1) a namespace, and (2) actions. A scope's components (including multiple actions) are delimited by a colon:`:`.
 
-A scope cannot be a `null` value, but should produces an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1)
+A scope cannot be a `null` value, but should produce an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1)
 
 > The requested scope is invalid, unknown, or malformed.
 
 ### Namespace
 
-Every scope must have a **zero** or **one** namespace. A namespace can either be **specific** or **global**. If a namespace is **global**, then it will be matched by all requests.
+Every scope must have **zero** or **one** namespace. A namespace can either be **specific** or **global**. If a namespace is **global**, then it will be matched by all requests. A **specific** namespace can only be matched by requests carrying the same specific namespace.
 
-The absense of a namespace (as discussed below) will indicate that no matching can be achieved on the namespace. This is not to be confused with a blank namespace, that will be inferred as being a **global namespace** (see below).
+The absense of a namespace (as discussed below) will indicate that no matching can be achieved on the namespace. This is **not** to be confused with a blank namespace, that will be inferred as being a **global namespace** (see below).
 
-Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
+Valid characters: any UTF-8 accepted by [RFC 6749](https://tools.ietf.org/html/rfc6749#appendix-A) except a color `:`, and a space ` `.
 
-The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction`)
+The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction` both produce the global namespace.) Alternatively, `global` is a protected word, and explicitly defines the namespace for a scope as the **global namespace**.
 
 Possible namespaces:
 
@@ -38,20 +38,22 @@ Possible namespaces:
 - `global` = Global namespace
 - `:read` = Global namespace (inferred)
 - `:` = Global namespace (inferred)
-- ` ` = Empty string (ie, nothing can match)
+- ` ` = Empty string, NO namespace (ie, nothing can match)
 
 ### Actions
 
 A scope may have either **zero** or **many** actions. The actions are a narrowing focus of the namespace. A scope without any actions is said to be at the **top level**. Actions are anything that follows the first delimited part of the scope (the namespace) and are separated by `:`.
 
-Valid characters: any UTF-8 accepted by RFC 6749 except a color `:`, and a space ` `.
+Valid characters: any UTF-8 accepted by [RFC 6749](https://tools.ietf.org/html/rfc6749#appendix-A) except a colon `:`, and a space ` `.
 
-Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. See below for discussion on matching. Negative actions are only permissible in required scopes, and not in requested scopes. If a requested scope contains a negation (`::`), then it should raise an error.
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. A negative action **only** impacts a specifically defined action, and has no impact upon (for example) a top level action. See below for discussion on matching. Negative actions are only permissible in base scopes, and not in tender scopes. If a tender scope contains a negation (`::`), then it should raise an error.
+
+Where there are multiple actions, the order that they appear in shall have no consequence upon acceptance.
 
 Possible actions on a scope:
 
 - `foo` = Top level
-- `:read:write` = Multiple  actions, namely `read` and `write`
+- `:read:write` = Multiple actions, namely `read` and `write`
 - `:` = Any action, wildcard
 - `foo:` = Any action, wildcard
 - `::read:write` = Any action except read and write
@@ -60,22 +62,25 @@ Possible actions on a scope:
 
 ### General
 
-The pattern for acceptance is that a client offers a requested scope to an authorizing agent. That authorizing agent has a predefined required scope. The role of the authorizing agent is to match the requested scope against the required scope and produce a `pass`/`fail` result.
+The pattern for acceptance is that a client offers a "tender" scope to an authorizing agent. That authorizing agent has a predefined "base" scope. The role of the authorizing agent is to match the tender against the base and produce a `pass`/`fail` result.
 
-### Required scope
+### Base
 
-The required scope can be any valid scope, including negations.
+The base can be any valid scope, including negations.
 
-### Requested scope
+### Tender
 
-Requested scopes **may not** contain negations (`::`). And, if they do, the authorizing agent should produce and error without providing a `pass`/`fail` result.
+Tenders **may not** contain negations (`::`). And, if they do, the authorizing agent should produce and error without providing a `pass`/`fail` result.
 
 ### How scopes are matched
 
-1. The namespaces must be equal, except a **global** namespace matches every other namespace, and an empty namespace is **unmatchable**
-2. If the `required_scope` has a defined action, or actions, then the `requested_scope` must:
+A tender shall `pass` against a given base if:
+
+1. The namespace of the tender is equal to the namespace of the base, except a **global** namespace matches every other namespace, and an empty namespace is **unmatchable**.
+2. If the base has a defined action, or actions, then the tender must:
     - be a top level scope with no defined actions, or
-    - contain all of the same actions *
+    - contain all of the same actions as the base*
+3. If the base does NOT have a defined action (and therefore is top level), then the tender must be a top level scope also.
     
 *Note: *An implementation of this specification may offer a validation mechanism that only requires **one** action to match*
 
@@ -85,9 +90,11 @@ Scopes can be chained together as a single string separated by a space:
 
     admin user:read ::delete
 
-A validation of multiple scopes is valid if the `requested_scope` matches **all** of the `required_scopes`. *
+Where there are multiple scopes, the order in which they appear shall have no importance and shall not play a part in the acceptance of the tender.
 
-*Note: *An implementation of this specification may offer a validation mechanism that only requires **one** `required_scope` to match the `requested_scope`*
+A validation of multiple scopes is valid if the tender matches **all** of the base scopes. *
+
+*Note: *An implementation of this specification may offer a validation mechanism that only requires **one** tender to match the base*
 
 ## Examples of scopes
 
@@ -107,7 +114,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 
 #### Simple single scopes - specific namespace
 
-| Required scope | Requested Scope | Intended Outcome |
+| Base scope | Tender scope | Intended outcome |
 |---|---|---|
 |user|something|fail|
 |user|user|pass|
@@ -125,7 +132,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 
 #### Simple single scopes - global namespace
 
-| Required scope | Requested Scope | Intended Outcome |
+| Base scope | Tender scope | Intended outcome |
 |---|---|---|
 |:|:read|pass|
 |:|admin|pass|
@@ -136,7 +143,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 
 #### Simple multiple scopes
 
-| Required scope | Requested Scope | Intended Outcome |
+| Base scope | Tender scope | Intended outcome |
 |---|---|---|
 |user|something else|fail|
 |user|something else user|pass|
@@ -152,7 +159,7 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
 
 #### Complex scopes
 
-| Required scope | Requested Scope | Intended Outcome |
+| Base scope | Tender scope | Intended outcome |
 |---|---|---|
 |user::delete|user|pass|
 |user::delete|user:read|pass|
@@ -168,9 +175,8 @@ A validation of multiple scopes is valid if the `requested_scope` matches **all*
     
 Note: *The preferred method of failing any scope should be `::` and not ` ` for its explicit nature.
 
-
-
 ```
 Legend
 * This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL actions being required, only one must match.
 ** This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL required scopes being met, only ONE required scope is fulfilled.
+```
