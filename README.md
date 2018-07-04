@@ -140,6 +140,12 @@ A validation of multiple scopes is valid if the inbound matches **all** of the b
 |:read|admin|pass|
 |:read|:read|pass|
 |:read|:write|fail|
+|global:|:read|pass|
+|global:|admin|pass|
+|global:|*anything here*|pass|
+|global:read|admin|pass|
+|global:read|:read|pass|
+|global:read|:write|fail|
 
 #### Simple multiple scopes
 
