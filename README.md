@@ -170,7 +170,7 @@ A validation of multiple scopes is valid if the inbound matches **all** of the b
 | Base scope | Inbound scope | Expected outcome |
 |---|---|---|
 |user::delete|user|pass|
-|user::delete|user:read|pass|
+|user::delete|user:read|fail|
 |user::delete|user:delete|fail|
 |user:read::delete|user|pass|
 |user:read::delete|user:read|pass|
