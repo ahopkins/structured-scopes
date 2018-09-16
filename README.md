@@ -30,7 +30,7 @@ The absense of a namespace (as discussed below) will indicate that no match can 
 
 Valid characters: any UTF-8 accepted by [RFC 6749](https://tools.ietf.org/html/rfc6749#appendix-A) except a color `:`, and a space ` `.
 
-The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction` both produce the global namespace.) Alternatively, `global` is a protected word, and explicitly defines the namespace for a scope as the **global namespace**, example: `global:`.
+The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction` both produce the global namespace.) Alternatively, `global` is a protected word, and explicitly defines the namespace for a scope as the **global namespace**, example: `global:`. The **global namespace** is only available for **base** scopes and not for **inbound** scopes.
 
 Possible namespaces:
 
