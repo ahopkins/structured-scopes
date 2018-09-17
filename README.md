@@ -175,7 +175,7 @@ A validation of multiple scopes is valid if the inbound matches **all** of the b
 |user:read::delete|user|pass|
 |user:read::delete|user:read|pass|
 |user:read::delete|user:delete|fail|
-|user:read::delete|user:read:delete|fail*|
+|user:read::delete|user:read:delete|fail|
 |user:read user::delete|user:read:delete|fail**|
 |user:read user::delete|user:read user:delete|fail**|
 | |*anything here*|fail|
