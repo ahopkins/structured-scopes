@@ -19,7 +19,7 @@ A scope is a `string` of characters encoded with `UTF-8` consisting of character
 
 A scope has two components: (1) a namespace, and (2) actions. A scope's components (including multiple actions) are delimited by a colon: `:`.
 
-A scope cannot be a `null` value, but should produce an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1).
+A scope cannot be a `null` value, but should produce an `invalid_scope` error, as defined by [RFC 6749, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1).
 
 > The requested scope is invalid, unknown, or malformed.
 
