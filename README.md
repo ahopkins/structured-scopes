@@ -209,3 +209,8 @@ Legend
 * This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL actions being required, only one must match.
 ** This is the default outcome. However, the validator should be capable of receiving an instruction that instead of ALL required scopes being met, only ONE required scope is fulfilled.
 ```
+
+## Implementations
+
+- [Javascript](https://github.com/ahopkins/sscopes-javascript) *IN PROGRESS*
+- [Python](https://github.com/ahopkins/sscopes-python)
