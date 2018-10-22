@@ -1,16 +1,17 @@
-# Structured Scope  (WIP)
+# Structured Scope
 
 ## Abstract
 
-This repository is meant to serve as a working outline of the generation of an abstract specification for the use of structured scopes in permission granting utilities.
+This repository is meant to serve as an abstract specification for the use of structured scopes in permission granting utilities.
 
 ## Introduction
 
-The goal of this endeavor is to standardize and define the meaning, and usage of "scopes" for implementation in an authorization utility. It is a work in progress and **does not currently have any license**, and may be subject to change at any time. All copyright and other rights are hereby reserved.
+The goal of this endeavor is to standardize and define the meaning, and usage of "scopes" for implementation in an authorization utility. It is [licensed](https://github.com/ahopkins/structured-scopes/blob/master/LICENSE) under the [CC0 1.0 Universal (CC0 1.0)
+Public Domain Dedication](https://creativecommons.org/publicdomain/zero/1.0/) All other copyrights and other rights, if any, are hereby reserved.
 
 ## Purpose
 
-The purpose of "scoping" is to provide a pass/fail response to a request for permission on a given, defined resource to authorized clients having the requisite permission level. A common application would be for permissioning on protected resources.
+The purpose of "scoping" is to provide a pass/fail response to a request for permission on a defined resource to authorized clients having the requisite permission level. A common application would be for permissioning on protected resources, for example, on web requests.
 
 ## Makeup of a scope
 
@@ -18,19 +19,19 @@ A scope is a `string` of characters encoded with `UTF-8` consisting of character
 
 A scope has two components: (1) a namespace, and (2) actions. A scope's components (including multiple actions) are delimited by a colon: `:`.
 
-A scope cannot be a `null` value, but should produce an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1)
+A scope cannot be a `null` value, but should produce an `invalid_scope` error, as defined by [RFC, Section 4.1.2.1](https://tools.ietf.org/html/rfc6749#section-4.1.2.1).
 
 > The requested scope is invalid, unknown, or malformed.
 
 ### Namespace
 
-Every scope must have **zero** or **one** namespace. A namespace can either be **specific** or **global**. If a namespace is **global**, then it will be matched by all requests. A **specific** namespace can only be matched by requests carrying the same specific namespace.
+Every scope must have **zero** or **one** namespace. A namespace can either be **specific** or **global**. If a namespace is **global**, then it will be matched by any requesting scope. A **specific** namespace can only be matched by requests carrying the same specific namespace.
 
 The absense of a namespace (as discussed below) will indicate that no match can be achieved on the namespace. This is **not** to be confused with a blank namespace, that will be inferred as being a **global namespace** (see below).
 
 Valid characters: any UTF-8 accepted by [RFC 6749](https://tools.ietf.org/html/rfc6749#appendix-A) except a color `:`, and a space ` `.
 
-The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction` both produce the global namespace.) Alternatively, `global` is a protected word, and explicitly defines the namespace for a scope as the **global namespace**, example: `global:`. The **global namespace** is only available for **base** scopes and not for **inbound** scopes.
+The first delimited part of a scope is the namespace. An undefined namespace is in the **global namespace** (eg `:` or `:someaction` both produce the global namespace.) Alternatively, `global` is a protected word, and explicitly defines the namespace for a scope as the **global namespace**, example: `global:`. The **global namespace** is only available for base scopes and not for inbound scopes.
 
 Possible namespaces:
 
@@ -46,7 +47,7 @@ A scope may have either **zero** or **many** actions. The actions are a narrowin
 
 Valid characters: any UTF-8 accepted by [RFC 6749](https://tools.ietf.org/html/rfc6749#appendix-A) except a colon `:`, and a space ` `.
 
-Anything that follows any empty action (which is displayed as a double color: `::`) is a negatve, for example `::exclusion`. A negative action **only** impacts a specifically defined action, and has no impact upon (for example) a top level action. See below for discussion on matching. Negative actions are only permissible in base scopes, and not in inbound scopes. If an inbound scope contains a negation (`::`), then it should raise an error.
+Anything that follows any empty action (which is displayed as a double color: `::`) is a negative action, or a negation, for example `::exclusion`. A negative action **only** impacts a specifically defined action, and has no impact upon (for example) a top level action. See below for discussion on matching. Negative actions are only permissible in base scopes, and not in inbound scopes. If an inbound scope contains a negation (`::`), then it should raise an error.
 
 Where there are multiple actions, the order that they appear in shall have no consequence upon acceptance.
 
@@ -62,7 +63,7 @@ Possible actions on a scope:
 
 ### General
 
-The pattern for acceptance is that a client offers an "inbound" scope to an authorizing agent. That authorizing agent has a predefined "base" scope. The role of the authorizing agent is to match the inbound against the base and produce a `pass`/`fail` result.
+The pattern for acceptance is that a client offers an "inbound" scope to an authorizing agent and requests acceptance. That authorizing agent has a predefined "base" scope. The role of the authorizing agent is to match the inbound against the base and produce a `pass`/`fail` result.
 
 ### Base
 
@@ -90,7 +91,7 @@ Scopes can be chained together as a single string separated by a space:
 
     admin user:read ::delete
 
-Where there are multiple scopes, the order in which they appear shall have no importance and shall not play a part in the acceptance of the inbound.
+Where there are multiple scopes, the order in which they appear shall have no importance and **shall not** play a part in the acceptance of the inbound.
 
 A validation of multiple scopes is valid if the inbound matches **all** of the base scopes. *
 
@@ -148,6 +149,9 @@ A validation of multiple scopes is valid if the inbound matches **all** of the b
 |global:read|:write|fail|
 |global|:read|fail|
 |global|admin|pass|
+|user:write|global:write|fail|
+|user:write|:write|fail|
+|admin|global|fail|
 
 #### Simple multiple scopes
 
@@ -163,19 +167,36 @@ A validation of multiple scopes is valid if the inbound matches **all** of the b
 |user:read foo|user foo|pass|
 |user:read foo|user foo:read|fail|
 |user:read foo|user:read foo|pass|
-|user:read foo:bar|:read:bar|pass|
+|user:read foo:bar|:read:bar|fail|
+|user:read foo:bar|user:read foo|pass|
+|user:read foo:bar|user foo|pass|
+|user foo|user|fail*|
 
 #### Complex scopes
 
 | Base scope | Inbound scope | Expected outcome |
 |---|---|---|
+|::delete|user|pass|
+|::delete|user:read|fail|
+|::delete|user:delete|fail|
+|::delete|user:read:delete|fail|
+|:::delete|user|pass|
+|:::delete|user:read|fail|
+|:::delete|user:delete|fail|
+|:::delete|user:read:delete|fail|
 |user::delete|user|pass|
 |user::delete|user:read|fail|
 |user::delete|user:delete|fail|
+|user::delete|user:read:delete|fail|
+|user:::delete|user|pass|
+|user:::delete|user:read|fail|
+|user:::delete|user:delete|fail|
+|user:::delete|user:read:delete|fail|
 |user:read::delete|user|pass|
 |user:read::delete|user:read|pass|
 |user:read::delete|user:delete|fail|
 |user:read::delete|user:read:delete|fail|
+|user:read::delete|user:write|fail|
 |user:read user::delete|user:read:delete|fail**|
 |user:read user::delete|user:read user:delete|fail**|
 | |*anything here*|fail|
