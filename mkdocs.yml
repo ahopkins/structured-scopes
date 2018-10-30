@@ -1,0 +1,17 @@
+site_name: Structured Scopes
+theme:
+  name: 'material'
+  palette:
+    primary: 'light green'
+    accent: 'light green'
+markdown_extensions:
+  - admonition
+  - codehilite:
+      linenums: true
+  - pymdownx.superfences
+nav:
+  - index.md
+  - makeup.md
+  - acceptance.md
+  - examples.md
+  - implementations.md
