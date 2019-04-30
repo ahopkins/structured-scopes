@@ -40,11 +40,11 @@ Inbound:    user:read
 Result:     fail
 ```
 
-See [more examples](examples.md)
+See [more examples](https://ahopkins.github.io/structured-scopes/examples/)
 
 
 ## Implementations
 
-- Python - [source](https://github.com/ahopkins/sscopes-python) | [docs](implementations.md)
-- Javascript - [source](https://github.com/ahopkins/sscopes-javascript) | [docs](implementations.md)
+- Python - [source](https://github.com/ahopkins/sscopes-python) | [docs](https://ahopkins.github.io/structured-scopes/implementations/)
+- Javascript - [source](https://github.com/ahopkins/sscopes-javascript) | [docs](https://ahopkins.github.io/structured-scopes/implementations/)
 
